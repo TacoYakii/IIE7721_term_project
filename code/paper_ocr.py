@@ -1,8 +1,9 @@
 import pdf2image
-from glob import glob 
+import glob 
 import os 
 import easyocr
 from tqdm import tqdm 
+
 
 def create_dir(path): 
     if not os.path.exists(path): 
@@ -17,7 +18,7 @@ def convert_to_image(pdf_path:str, sv_root:str) -> None:
         sv_path (str): Save root path 
 
     """
-    pdf_files = list(glob(f"{pdf_path}/*.pdf"))
+    pdf_files = list(glob.glob(f"{pdf_path}/*.pdf"))
     for pdf in tqdm(pdf_files, desc="Converting pdf to image"): 
         with open(pdf, "rb") as f: 
             img = pdf2image.convert_from_bytes(f.read())
@@ -41,10 +42,12 @@ def image_to_txt(img_path:str, sv_root:str) -> None:
         ["en", "ko"], 
         gpu=True 
     )
-    img_dir_list = list(glob(f"{img_path}/*"))
+    
+    img_dir_list = list(glob.glob(f"{img_path}/*"))
     for img_dir in tqdm(img_dir_list, desc="converting image to txt"): 
         file_nm = os.path.basename(img_dir).split(".")[0] 
-        img_list = list(glob(f"{img_dir}/*.jpg")) 
+        img_dir = glob.escape(img_dir)
+        img_list = list(glob.glob(f"{img_dir}/*.jpg"))
         create_dir(os.path.join(sv_root, file_nm))
         for page in img_list: 
             page_no = os.path.basename(page).split(".")[0] 
@@ -59,5 +62,5 @@ def image_to_txt(img_path:str, sv_root:str) -> None:
 original_pdf_path = "/home/taco/Documents/projects/paper_analysis/data/original" 
 image_sv_root = "/home/taco/Documents/projects/paper_analysis/data/image"
 txt_sv_root = "/home/taco/Documents/projects/paper_analysis/data/txt"
-convert_to_image(original_pdf_path, image_sv_root)
+#convert_to_image(original_pdf_path, image_sv_root)
 image_to_txt(image_sv_root, txt_sv_root)
