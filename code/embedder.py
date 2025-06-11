@@ -138,7 +138,7 @@ def get_extra_info(embedding_res:pd.DataFrame, threshold):
     return embedding_res
 
 
-def get_info(embedding_res, room_score=70, inst_score=70, extra_score=70):
+def get_info(embedding_res, room_score=95, inst_score=95, extra_score=95):
     added_room_info = get_room_info(embedding_res, room_score) 
     added_inst_info = get_inst_info(added_room_info, inst_score) 
     final_res = get_extra_info(added_inst_info, extra_score)
@@ -159,16 +159,19 @@ def find_best_matching_word(sentence, word_list, threshold):
     
     return best_idx 
 
-    
 
 if __name__ == "__main__": 
     preprocessed_files_root = "/home/taco/Documents/projects/paper_analysis/data/preprocessed" 
     paper = list(glob.glob(f"{preprocessed_files_root}/*.csv"))
-    res_root = "/home/taco/Documents/projects/paper_analysis/res"
+    res_root = "/home/taco/Documents/projects/paper_analysis/cosine90"
+    
+    if not os.path.exists(res_root): 
+        os.makedirs(os.path.join(res_root, "embedded"))
+        os.makedirs(os.path.join(res_root, "final"))
     
     for file in tqdm(paper): 
         file_name = os.path.basename(file)
         file = pd.read_csv(file)
-        res = ko_sroberta(file, file_name) 
-        final = get_info(res, 70, 70, 70) 
+        res = ko_sroberta(file, file_name, score_threshold=0.9) 
+        final = get_info(res, 95, 95, 95) 
         final.to_csv(os.path.join(res_root, "final", file_name))
